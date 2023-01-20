@@ -3,6 +3,7 @@ const app = express();
 app.use(express.json());
 const nodemailer = require("nodemailer");
 const cors = require("cors");
+const multer = require("multer");
 require("dotenv").config();
 app.use(cors());
 
@@ -15,10 +16,10 @@ app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
 });
 
-app.post("/send-email", async (req, res) => {
+app.post("/send-email", multer().array("files"), async (req, res) => {
   try {
     // Get the form data from the request body
-    const { name, email, city, pronouns, files, message } = req.body;
+    const { name, email, city, pronouns, message } = req.body;
     // create reusable transporter object using the default SMTP transport
     let transporter = nodemailer.createTransport({
       service: "gmail",
@@ -35,11 +36,11 @@ app.post("/send-email", async (req, res) => {
       to: "harz5tattoos@gmail.com", // list of receivers
       subject: `${city}`, // Subject line
       text: `Name: ${name}\nEmail: ${email}\nCity: ${city}\nPronouns: ${pronouns}\nMessage: ${message}`, // plain text body
-      attachments: files, // add attachments
+      attachments: req.files, // add attachments
     });
     console.log("Message sent: %s", info.messageId);
     console.log("Preview URL: %s", nodemailer.getTestMessageUrl(info));
-    res.status(200).send("Email sent successfully");
+    res.status(200).json({ message: "Email sent successfully" });
   } catch (err) {
     console.error(err);
     res.status(500).send(err.message);
