@@ -1,22 +1,20 @@
 const express = require("express");
 const app = express();
-app.use(express.json());
-const nodemailer = require("nodemailer");
 const cors = require("cors");
 const multer = require("multer");
+const nodemailer = require("nodemailer");
 require("dotenv").config();
 app.use(cors());
-
-app.get("/", (req, res) => {
-  res.send("Hello World!");
-});
 
 const PORT = 5000;
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
 });
 
-app.post("/send-email", multer().array("files"), async (req, res) => {
+const storage = multer.memoryStorage();
+const upload = multer({ storage });
+
+app.post("/send-email", upload.array("files"), async (req, res) => {
   try {
     // Get the form data from the request body
     const { name, email, city, pronouns, message } = req.body;
