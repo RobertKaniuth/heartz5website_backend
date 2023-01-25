@@ -35,8 +35,13 @@ app.post("/send-email", multer().array("files"), async (req, res) => {
       from: `${email}`, // sender address
       to: "harz5tattoos@gmail.com", // list of receivers
       subject: `${city}`, // Subject line
-      text: `Name: ${name}\nEmail: ${email}\nCity: ${city}\nPronouns: ${pronouns}\nMessage: ${message}`, // plain text body
-      attachments: req.files, // add attachments
+      text: `Name: ${name}\nEmail: ${email}\nCity: ${city}\nPronouns: ${pronouns}\nMessage: ${message}`,
+      attachments: req.files.map((file) => {
+        return {
+          filename: file.originalname,
+          content: file.buffer,
+        };
+      }),
     });
     console.log("Message sent: %s", info.messageId);
     console.log("Preview URL: %s", nodemailer.getTestMessageUrl(info));
